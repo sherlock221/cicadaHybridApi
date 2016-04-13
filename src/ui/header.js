@@ -16,7 +16,15 @@ export  default class Header {
     /**
      * 更新整个header
      */
-    update(){
+    update(opts){
+        if (!opts) return;
+
+        //参考继续设计 http://www.cnblogs.com/yexiaochai/p/4921635.html
+        let left = [];
+        let right = [];
+        let title = {};
+
+
         HybridJS.core.invokeNative("ui.header.update",{
 
         });

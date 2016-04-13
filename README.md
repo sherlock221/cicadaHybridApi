@@ -51,8 +51,8 @@ https://github.com/gavinkwoe/BeeFramework
 未来部分
 6.  离线包解决 html5 离线不可访问
 
-
-
+方案
+http://www.cnblogs.com/yexiaochai/p/4921635.html
 Hybrid中Native与前端各自的工作是什么
 
 ② Hybrid的交互接口如何设计
