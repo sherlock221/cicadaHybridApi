@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试通信</title>
+    <meta name="description"
+          content="app, web app, responsive, responsive layout, admin, admin panel, admin dashboard, flat, flat ui, ui kit, AngularJS, ui route, charts, widgets, components"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <style type="text/css">
+        body {
+            padding: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="http://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<h1>
+    通信方案:
+</h1>
+<p>
+    1.js调用原生 url拦截<br/>
+    2.原生调用js 通过JS注入
+</p>
+
+<br/>
+
+
+<!-- toast -->
+<section>
+    <h2 class="">JS通信原生
+        <small>(频繁使用)</small>
+    </h2>
+    <br/>
+    <h5>js发起调用</h5>
+    <p>
+        <button type="button" class="btn btn-primary" onclick="invokeNative('show');">js调用原生</button>
+    </p>
+
+    <p>
+        <br/>
+        获得当前的用户信息 :
+        <br/>
+        cicada://hybrid/user/getUser?userId=10&req_fun=__ca_1460523448582
+        <br/>
+
+        <br/>
+        调用native的消息提示 :
+        <br/>
+        cicada://hybrid/ui/toast?message=xxxxx
+        <br/>
+
+
+        <br/>
+        说明:
+        <br/>
+        私有协议://通信来源/命名空间+功能或方法名?参数&参数&回调
+    </p>
+
+
+    <br/>
+    <h5>如果需要回调,原生回调js</h5>
+    <p>
+        协议:
+        <pre>
+{
+    //回调函数标识
+    res_fun : id,
+     //返回值
+    data :  {
+        userName : "haha",
+        userId : 10
+    }
+}
+        </pre>
+
+
+
+    回调方法(android)
+    <h5>webview.loadUrl('javascript: HybridJS.core.invokeWeb(api名称, '{res_fun : xxxx , data : { xx : xx } }')');</h5>
+
+    </p>
+</section>
+
+<br/>
+<section>
+    <h2 class="">原生主动通信js
+        <small>(场景比较少)</small>
+    </h2>
+
+    <p>
+        <table>
+    <tr>
+        <td> api : sdk.notify</td>
+    </tr>
+</table>
+
+    </p>
+
+    <p>
+        <button type="button" class="btn btn-success" onclick="invokeJS();">原生通信js</button>
+    </p>
+    <p>
+
+    <p>
+        协议:
+        <pre>
+{
+    //本次通知事件名称
+    event : "xxx",
+     //传递的值
+    data :  {
+        userName : "haha",
+        userId : 10
+    }
+}
+        </pre>
+
+    调用方法(android)
+    <h5>webview.loadUrl('javascript: HybridJS.core.invokeWeb('sdk.notify',xxx)');</h5>
+
+    </p>
+</section>
+
+
+<section>
+    <br/>
+    <br/>
+    <h2>通信事件</h2>
+    <h5>sdk.notify</h5>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <td>事件名称</td>
+                <td>描述</td>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>
+                   page.reload
+                </td>
+                <td>
+                    刷新当前webview页面
+                </td>
+            </tr>
+        </tbody>
+
+    </table>
+
+</section>
+
+
+<script type="text/javascript" src="../../dist/cicadaHybrid.js"></script>
+<script type="text/javascript">
+
+    //js调用原生
+    window.invokeNative = function (type) {
+        var id = HybridJS.core.invokeNative("module.getUser", {userId: 10}, function (res) {
+            console.log(res);
+        });
+        //模拟原生调用
+        setTimeout(function () {
+
+            var res = {
+                //回调函数标识
+                res_fun: id,
+                //返回的参数
+                data: {userName: "haha", userId: 10}
+            }
+
+            HybridJS.core.invokeWeb("module.getUser", JSON.stringify(res));
+
+        }, 1000);
+    }
+
+
+    //原生主动通信js
+    window.invokeJS = function(){
+        HybridJS.core.invokeWeb("sdk.notify", JSON.stringify({
+            event : "refresh.page",
+            data : {
+                userName : "abc"
+            }
+        }));
+    };
+
+
+    //监听主动通信
+    HybridJS.event.on("refresh.page",refreshPageCallBack);
+
+    function refreshPageCallBack(res) {
+        console.log(res);
+    }
+
+    //取消绑定
+//    HybridJS.event.off("refresh.page");
+
+
+
+
+
+
+</script>
+</body>
+</html>

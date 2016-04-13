@@ -6,9 +6,9 @@
 
 import Util  from  "../util/util";
 import Toast from "./toast";
-import Alert from "./alert";
+import Dialog from "./dialog";
 
 Util.getRoot().ui = {
     toast : Toast,
-    alert : Alert
+    dialog : Dialog
 };

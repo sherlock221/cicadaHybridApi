@@ -9,20 +9,24 @@ export  default class Util {
 
     /**
      * 调试
-      * @param message
+     * @param message
      */
-    static log(){
+    static log() {
         var message = '';
-        if(DE_BUG){
-            for(var i =0; i<arguments.length;i++){
-                message += arguments[i];
+        if (DE_BUG) {
+
+            for (var i = 0; i < arguments.length; i++) {
+                if (arguments[i] instanceof Object)
+                    message += JSON.stringify(arguments[i]);
+                else
+                    message += arguments[i];
             }
             console.log(message);
         }
     }
 
-    static getRoot(){
-        if(!window[API_ROOT])
+    static getRoot() {
+        if (!window[API_ROOT])
             window[API_ROOT] = {};
 
         return window[API_ROOT];

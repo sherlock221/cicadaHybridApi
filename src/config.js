@@ -6,6 +6,8 @@ const API_ROOT = "HybridJS";
 const UA = window.navigator.userAgent;
 //系统名称
 const OS_NAME = "cicada";
+//通信来源
+const SOURCE = "hybrid";
 const DE_BUG = true;
 
 
@@ -14,5 +16,6 @@ module .exports = {
     API_ROOT : API_ROOT,
     UA : UA,
     OS_NAME : OS_NAME,
-    DE_BUG  : DE_BUG
+    DE_BUG  : DE_BUG,
+    SOURCE : SOURCE
 }

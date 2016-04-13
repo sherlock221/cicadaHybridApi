@@ -5,8 +5,9 @@
  */
 
 
-import {SCHEMA,API_ROOT,UA,OS_NAME,DE_BUG} from "../config";
+import {SCHEMA,API_ROOT,UA,OS_NAME,DE_BUG,SOURCE} from "../config";
 import Util from "../util/util";
+import EventModel from "./event-model";
 
 var HybridJS = {};
 const REQUEST_FUN_BACK = 'req_fun';
@@ -22,7 +23,11 @@ class NativeSocket {
         HybridJS = Util.getRoot();
         let m = UA.match(new RegExp(OS_NAME + '\\/([^\\/]+)\\/(\\d+)'));
         console.log(m);
+
+        //事件模型暴露
+        HybridJS.event = EventModel;
     }
+
 
     /**
      * js调用原生api
@@ -58,8 +63,10 @@ class NativeSocket {
             delete params.nextTick;
         }
 
+        Util.log("当前回调函数栈: ",CALLBACKS);
+
         //组装url
-        let url = `${SCHEMA}://${ns}/${method}`;
+        let url = `${SCHEMA}://${SOURCE}/${ns}/${method}`;
 
         //回调函数
         if(fn)  params[REQUEST_FUN_BACK] = fn;
@@ -81,6 +88,7 @@ class NativeSocket {
         //如果有回调函数则返回标识
         return fn;
     };
+
 
 
     /**
@@ -107,6 +115,7 @@ class NativeSocket {
         Util.log("app发送的参数: ",JSON.stringify(params));
 
         let responseFun = params ? params[RESPONSE_FUN_BACK] : null;
+
         //调用回调函数
         if(responseFun){
             let callback = this._findCallback(api, responseFun);
@@ -115,16 +124,18 @@ class NativeSocket {
             if(Util.isFn(callback)){
                 callback(params.data);
             }
-
-
             return;
         }
-        //发送事件
+        //主动通知web
         else{
             Util.log("发送事件");
+            if(/^sdk(?:\.|\/)notify/.test(api) && params) {
+                let data = params.data || {}
+                EventModel.emit(params.event, data);
+                return;
+            }
         }
     };
-
 
     _encodeParam(params) {
         let i = 0;
@@ -156,15 +167,14 @@ class NativeSocket {
                         callback.apply(context, args);
                     }, 0);
                 }
-
                 delete map[sn];
             };
 
             return sn;
         }
-
         return '';
     };
+
 
     _invokeByUrlSchema(url){
         window.location.href = url;

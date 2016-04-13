@@ -76,6 +76,10 @@
 
 	var _util2 = _interopRequireDefault(_util);
 
+	var _eventModel = __webpack_require__(7);
+
+	var _eventModel2 = _interopRequireDefault(_eventModel);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -95,6 +99,9 @@
 	        HybridJS = _util2.default.getRoot();
 	        var m = _config.UA.match(new RegExp(_config.OS_NAME + '\\/([^\\/]+)\\/(\\d+)'));
 	        console.log(m);
+
+	        //事件模型暴露
+	        HybridJS.event = _eventModel2.default;
 	    }
 
 	    /**
@@ -130,8 +137,10 @@
 	                delete params.nextTick;
 	            }
 
+	            _util2.default.log("当前回调函数栈: ", CALLBACKS);
+
 	            //组装url
-	            var url = _config.SCHEMA + "://" + ns + "/" + method;
+	            var url = _config.SCHEMA + "://" + _config.SOURCE + "/" + ns + "/" + method;
 
 	            //回调函数
 	            if (fn) params[REQUEST_FUN_BACK] = fn;
@@ -180,6 +189,7 @@
 	            _util2.default.log("app发送的参数: ", JSON.stringify(params));
 
 	            var responseFun = params ? params[RESPONSE_FUN_BACK] : null;
+
 	            //调用回调函数
 	            if (responseFun) {
 	                var callback = this._findCallback(api, responseFun);
@@ -188,12 +198,16 @@
 	                if (_util2.default.isFn(callback)) {
 	                    callback(params.data);
 	                }
-
 	                return;
 	            }
-	            //发送事件
+	            //主动通知web
 	            else {
 	                    _util2.default.log("发送事件");
+	                    if (/^sdk(?:\.|\/)notify/.test(api) && params) {
+	                        var data = params.data || {};
+	                        _eventModel2.default.emit(params.event, data);
+	                        return;
+	                    }
 	                }
 	        }
 	    }, {
@@ -231,7 +245,6 @@
 	                                callback.apply(context, args);
 	                            }, 0);
 	                        }
-
 	                        delete map[sn];
 	                    };
 
@@ -242,7 +255,6 @@
 
 	                if ((typeof _ret === "undefined" ? "undefined" : _typeof(_ret)) === "object") return _ret.v;
 	            }
-
 	            return '';
 	        }
 	    }, {
@@ -281,6 +293,8 @@
 	var UA = window.navigator.userAgent;
 	//系统名称
 	var OS_NAME = "cicada";
+	//通信来源
+	var SOURCE = "hybrid";
 	var DE_BUG = true;
 
 	module.exports = {
@@ -288,7 +302,8 @@
 	    API_ROOT: API_ROOT,
 	    UA: UA,
 	    OS_NAME: OS_NAME,
-	    DE_BUG: DE_BUG
+	    DE_BUG: DE_BUG,
+	    SOURCE: SOURCE
 		};
 
 /***/ },
@@ -320,13 +335,14 @@
 
 	        /**
 	         * 调试
-	          * @param message
+	         * @param message
 	         */
 	        value: function log() {
 	            var message = '';
 	            if (_config.DE_BUG) {
+
 	                for (var i = 0; i < arguments.length; i++) {
-	                    message += arguments[i];
+	                    if (arguments[i] instanceof Object) message += JSON.stringify(arguments[i]);else message += arguments[i];
 	                }
 	                console.log(message);
 	            }
@@ -364,15 +380,15 @@
 
 	var _toast2 = _interopRequireDefault(_toast);
 
-	var _alert = __webpack_require__(6);
+	var _dialog = __webpack_require__(6);
 
-	var _alert2 = _interopRequireDefault(_alert);
+	var _dialog2 = _interopRequireDefault(_dialog);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	_util2.default.getRoot().ui = {
 	  toast: _toast2.default,
-	  alert: _alert2.default
+	  dialog: _dialog2.default
 	}; /**
 	    * Created by jiaaobo on 16/4/10.
 	    */
@@ -384,7 +400,7 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
@@ -402,24 +418,37 @@
 	var HybridJS = _util2.default.getRoot();
 
 	var Toast = function () {
-	    function Toast() {
-	        _classCallCheck(this, Toast);
+	  function Toast() {
+	    _classCallCheck(this, Toast);
+	  }
+
+	  _createClass(Toast, null, [{
+	    key: "show",
+
+
+	    /**
+	     * 显示toast
+	     * @param message
+	     * @param duration 毫秒 如果duration = 0; 则一直显示
+	     */
+	    value: function show(message, duration) {
+
+	      duration = duration || 2000;
+	      HybridJS.core.invokeNative("ui.toast", { message: message, show: true, duration: duration });
 	    }
+	  }, {
+	    key: "hide",
 
-	    _createClass(Toast, null, [{
-	        key: "show",
-	        value: function show(message, duration) {
-	            duration = duration || 2000;
-	            HybridJS.core.invokeNative("ui.toast", { message: message, display: true, duration: duration });
-	        }
-	    }, {
-	        key: "hide",
-	        value: function hide() {
-	            HybridJS.core.invokeNative("ui.toast", { display: false });
-	        }
-	    }]);
 
-	    return Toast;
+	    /**
+	     * 隐藏toast
+	     */
+	    value: function hide() {
+	      HybridJS.core.invokeNative("ui.toast", { show: false });
+	    }
+	  }]);
+
+	  return Toast;
 	}();
 
 	exports.default = Toast;
@@ -448,27 +477,199 @@
 
 	var HybridJS = _util2.default.getRoot();
 
-	var Alert = function () {
-	    function Alert() {
-	        _classCallCheck(this, Alert);
+	var Dialog = function () {
+	    function Dialog() {
+	        _classCallCheck(this, Dialog);
 	    }
 
-	    _createClass(Alert, null, [{
-	        key: "show",
-	        value: function show(message) {
-	            HybridJS.core.invokeNative("ui.alert", { message: message, display: true });
+	    _createClass(Dialog, null, [{
+	        key: "getDialogTypes",
+	        value: function getDialogTypes() {
+	            return {
+	                //提示型弹窗
+	                TIP_ALERT: "1",
+	                //confirm型
+	                CONFIRM: "2",
+	                //Prompt型
+	                PROMPT: "3"
+	            };
+	        }
+
+	        /**
+	         * 消息提示窗
+	         * @param message
+	         * @param title
+	         */
+
+	    }, {
+	        key: "alert",
+	        value: function alert(message, title, options) {
+	            var data = {
+	                message: message
+	            };
+
+	            //第二个参数
+	            if (title instanceof Object) {
+	                Dialog.show(Dialog.getDialogTypes().TIP_ALERT, message, null, title);
+	            } else {
+	                Dialog.show(Dialog.getDialogTypes().TIP_ALERT, message, title, options);
+	            }
 	        }
 	    }, {
-	        key: "hide",
-	        value: function hide() {
-	            HybridJS.core.invokeNative("ui.alert", { display: false });
+	        key: "confirm",
+
+
+	        /**
+	         * 询问提示框
+	         * @param message
+	         * @param title
+	         */
+	        value: function confirm(message, title, options) {
+	            Dialog.show(Dialog.getDialogTypes().CONFIRM, message, title, options);
+	        }
+	    }, {
+	        key: "show",
+	        value: function show(dialogType, message, title) {
+	            var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+
+	            var DialogData = {
+	                title: title || "",
+	                message: message,
+	                positiveButtonText: options.positiveButtonText || "确定",
+	                cancelButtonText: options.cancelButtonText || "取消",
+	                positiveCallBack: options.positiveCallBack || "",
+	                cancelCallBack: options.cancelCallBack || ""
+	            };
+
+	            var TYPE = Dialog.getDialogTypes();
+	            switch (dialogType) {
+	                case TYPE.TIP_ALERT:
+	                    HybridJS.core.invokeNative("ui.alert", DialogData);
+	                    break;
+	                case TYPE.CONFIRM:
+	                    HybridJS.core.invokeNative("ui.confirm", DialogData);
+	                    break;
+	                case TYPE.PROMPT:
+	                    HybridJS.core.invokeNative("ui.prompt", DialogData);
+	                    break;
+	            }
 	        }
 	    }]);
 
-	    return Alert;
+	    return Dialog;
 	}();
 
-	exports.default = Alert;
+	exports.default = Dialog;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 事件模型
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * sherlock221b
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _config = __webpack_require__(2);
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HANDLERS = {};
+
+	var EventModel = function () {
+	    function EventModel() {
+	        _classCallCheck(this, EventModel);
+	    }
+
+	    _createClass(EventModel, null, [{
+	        key: "on",
+
+
+	        //绑定事件
+	        value: function on(event, handler) {
+	            var fns = HANDLERS[event];
+
+	            if (!_util2.default.isFn(handler)) return false;
+
+	            if (!handler.name) console.warn("绑定事件 " + event + " 请尽量不用匿名函数！");
+
+	            if (fns) {
+	                if (!Array.isArray(fns)) fns = [fns];
+	                if (Array.isArray(fns) && ~fns.indexOf(handler)) return false;
+	                fns.push(handler);
+	            } else {
+	                fns = handler;
+	            }
+
+	            HANDLERS[event] = fns;
+	            return true;
+	        }
+	    }, {
+	        key: "off",
+
+
+	        //取消绑定
+	        value: function off(event, handler) {
+	            if (!(event in HANDLERS)) return false;
+	            if (_util2.default.isFn(handler)) {
+	                var fns = HANDLERS[event];
+
+	                if (Array.isArray(fns)) {
+	                    HANDLERS[event] = fns.filter(function (fn) {
+	                        return fn != handler;
+	                    });
+
+	                    return HANDLERS[event].length !== fns.length;
+	                } else {
+	                    return fns == handler ? delete HANDLERS[event] : false;
+	                }
+	            } else {
+	                return delete HANDLERS[event];
+	            }
+	        }
+	    }, {
+	        key: "emit",
+	        value: function emit(event, data) {
+
+	            if (!event) {
+	                console.warn('Receive empty event');
+	                return;
+	            }
+
+	            var fns = HANDLERS[event];
+
+	            if (!(event in HANDLERS)) {
+	                console.warn('event %s has not emited', event);
+	                return;
+	            }
+
+	            if (Array.isArray(fns)) fns.forEach(function (fn) {
+	                fn(data);
+	            });else if (_util2.default.isFn(fns)) fns(data);
+
+	            console.log("emit 绑定事件栈 : ", HANDLERS);
+	        }
+	    }]);
+
+	    return EventModel;
+	}();
+
+	exports.default = EventModel;
+
+
+		module.exports = EventModel;
 
 /***/ }
 /******/ ]);
