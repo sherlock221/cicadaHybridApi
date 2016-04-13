@@ -7,8 +7,10 @@
 import Util  from  "../util/util";
 import Toast from "./toast";
 import Dialog from "./dialog";
+import Header from "./header";
 
 Util.getRoot().ui = {
     toast : Toast,
-    dialog : Dialog
+    dialog : Dialog,
+    header : Header
 };
