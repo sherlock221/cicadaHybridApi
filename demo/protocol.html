@@ -44,17 +44,21 @@
         <tbody>
         <tr>
             <td>
-                ui.nav.go
+                ui.nav.forward
             </td>
             <td>
-                显示/隐藏原生消息提示框
+               页面跳转
             </td>
             <td>
                 <pre>
 {
-    message: message, 提示消息
-    show: true,  显示:true 隐藏false
-    duration: duration  持续时间(默认2000毫秒隐藏)
+
+    type: webview H5新开Webview跳转H5页面,
+          native  跳转原生界面 ,
+          page    页面内跳转与hybrid无关.
+    topage : xxx  要去的页面,
+    param  : {} 携带参数
+
 }
                 </pre>
             </td>

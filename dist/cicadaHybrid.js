@@ -50,9 +50,13 @@
 
 	var _nativeSocket2 = _interopRequireDefault(_nativeSocket);
 
-	var _ui = __webpack_require__(4);
+	var _ui = __webpack_require__(5);
 
 	var _ui2 = _interopRequireDefault(_ui);
+
+	var _navigation = __webpack_require__(8);
+
+	var _navigation2 = _interopRequireDefault(_navigation);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -76,7 +80,7 @@
 
 	var _util2 = _interopRequireDefault(_util);
 
-	var _eventModel = __webpack_require__(7);
+	var _eventModel = __webpack_require__(4);
 
 	var _eventModel2 = _interopRequireDefault(_eventModel);
 
@@ -220,6 +224,21 @@
 	                i++;
 	            }
 	            return encodeURIComponent(baseUrl);
+	        }
+	    }, {
+	        key: "registerCallBack",
+
+
+	        /**
+	         * 开放注册回调函数
+	         * @returns {*}
+	         */
+	        value: function registerCallBack(api, callBack, params) {
+	            params = params || {};
+	            var fn = this._callbackSign(api, callBack, params.context || HybridJS, params.nextTick !== undefined ? params.nextTick : true);
+	            console.log(CALLBACKS);
+
+	            return fn;
 	        }
 	    }, {
 	        key: "_callbackSign",
@@ -372,15 +391,125 @@
 
 	"use strict";
 
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 事件模型
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * sherlock221b
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _config = __webpack_require__(2);
+
 	var _util = __webpack_require__(3);
 
 	var _util2 = _interopRequireDefault(_util);
 
-	var _toast = __webpack_require__(5);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HANDLERS = {};
+
+	var EventModel = function () {
+	    function EventModel() {
+	        _classCallCheck(this, EventModel);
+	    }
+
+	    _createClass(EventModel, null, [{
+	        key: "on",
+
+
+	        //绑定事件
+	        value: function on(event, handler) {
+	            var fns = HANDLERS[event];
+
+	            if (!_util2.default.isFn(handler)) return false;
+
+	            if (!handler.name) console.warn("绑定事件 " + event + " 请尽量不用匿名函数！");
+
+	            if (fns) {
+	                if (!Array.isArray(fns)) fns = [fns];
+	                if (Array.isArray(fns) && ~fns.indexOf(handler)) return false;
+	                fns.push(handler);
+	            } else {
+	                fns = handler;
+	            }
+
+	            HANDLERS[event] = fns;
+	            return true;
+	        }
+	    }, {
+	        key: "off",
+
+
+	        //取消绑定
+	        value: function off(event, handler) {
+	            if (!(event in HANDLERS)) return false;
+	            if (_util2.default.isFn(handler)) {
+	                var fns = HANDLERS[event];
+
+	                if (Array.isArray(fns)) {
+	                    HANDLERS[event] = fns.filter(function (fn) {
+	                        return fn != handler;
+	                    });
+
+	                    return HANDLERS[event].length !== fns.length;
+	                } else {
+	                    return fns == handler ? delete HANDLERS[event] : false;
+	                }
+	            } else {
+	                return delete HANDLERS[event];
+	            }
+	        }
+	    }, {
+	        key: "emit",
+	        value: function emit(event, data) {
+
+	            if (!event) {
+	                console.warn('Receive empty event');
+	                return;
+	            }
+
+	            var fns = HANDLERS[event];
+
+	            if (!(event in HANDLERS)) {
+	                console.warn('event %s has not emited', event);
+	                return;
+	            }
+
+	            if (Array.isArray(fns)) fns.forEach(function (fn) {
+	                fn(data);
+	            });else if (_util2.default.isFn(fns)) fns(data);
+
+	            console.log("emit 绑定事件栈 : ", HANDLERS);
+	        }
+	    }]);
+
+	    return EventModel;
+	}();
+
+	exports.default = EventModel;
+
+
+		module.exports = EventModel;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _toast = __webpack_require__(6);
 
 	var _toast2 = _interopRequireDefault(_toast);
 
-	var _dialog = __webpack_require__(6);
+	var _dialog = __webpack_require__(7);
 
 	var _dialog2 = _interopRequireDefault(_dialog);
 
@@ -394,7 +523,7 @@
 	    */
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -454,7 +583,7 @@
 	exports.default = Toast;
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -562,21 +691,14 @@
 	exports.default = Dialog;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 事件模型
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * sherlock221b
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-	var _config = __webpack_require__(2);
 
 	var _util = __webpack_require__(3);
 
@@ -586,90 +708,81 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var HANDLERS = {};
+	var HybridJS = _util2.default.getRoot();
 
-	var EventModel = function () {
-	    function EventModel() {
-	        _classCallCheck(this, EventModel);
+	var NavigationType = {
+	    WEBVIEW: "webview",
+	    NATIVE: "native",
+	    PAGE: "page"
+	};
+
+	var Navigation = function () {
+	    function Navigation() {
+	        _classCallCheck(this, Navigation);
 	    }
 
-	    _createClass(EventModel, null, [{
-	        key: "on",
+	    _createClass(Navigation, [{
+	        key: "forwardNative",
 
 
-	        //绑定事件
-	        value: function on(event, handler) {
-	            var fns = HANDLERS[event];
-
-	            if (!_util2.default.isFn(handler)) return false;
-
-	            if (!handler.name) console.warn("绑定事件 " + event + " 请尽量不用匿名函数！");
-
-	            if (fns) {
-	                if (!Array.isArray(fns)) fns = [fns];
-	                if (Array.isArray(fns) && ~fns.indexOf(handler)) return false;
-	                fns.push(handler);
-	            } else {
-	                fns = handler;
-	            }
-
-	            HANDLERS[event] = fns;
-	            return true;
+	        /**
+	         * 跳转至原生界面
+	         * @param topage
+	         * @param params
+	         */
+	        value: function forwardNative(topage, params, callBack) {
+	            this.forward(NavigationType.NATIVE, topage, params, callBack);
 	        }
 	    }, {
-	        key: "off",
+	        key: "forwardView",
 
 
-	        //取消绑定
-	        value: function off(event, handler) {
-	            if (!(event in HANDLERS)) return false;
-	            if (_util2.default.isFn(handler)) {
-	                var fns = HANDLERS[event];
-
-	                if (Array.isArray(fns)) {
-	                    HANDLERS[event] = fns.filter(function (fn) {
-	                        return fn != handler;
-	                    });
-
-	                    return HANDLERS[event].length !== fns.length;
-	                } else {
-	                    return fns == handler ? delete HANDLERS[event] : false;
-	                }
-	            } else {
-	                return delete HANDLERS[event];
-	            }
+	        /**
+	         * 跳转到新开webview页面
+	         * @param topage
+	         * @param params
+	         */
+	        value: function forwardView(topage, params) {
+	            this.forward(NavigationType.WEBVIEW, topage, params);
 	        }
 	    }, {
-	        key: "emit",
-	        value: function emit(event, data) {
+	        key: "forwardPage",
 
-	            if (!event) {
-	                console.warn('Receive empty event');
-	                return;
+
+	        /**
+	         * 当前容器内跳转
+	         * @param urlPage
+	         * @param params
+	         */
+	        value: function forwardPage(urlPage, params) {
+	            window.location.href = urlPage;
+	        }
+	    }, {
+	        key: "forward",
+	        value: function forward(type, topage, params, callBack) {
+
+	            var api = "ui.nav.forward";
+
+	            var data = {
+	                type: type,
+	                topage: topage
+	            };
+
+	            if (params) data = Object.assign(data, params);
+
+	            if (callBack) {
+	                data.req_fn = HybridJS.core.registerCallBack(api, callBack);
 	            }
-
-	            var fns = HANDLERS[event];
-
-	            if (!(event in HANDLERS)) {
-	                console.warn('event %s has not emited', event);
-	                return;
-	            }
-
-	            if (Array.isArray(fns)) fns.forEach(function (fn) {
-	                fn(data);
-	            });else if (_util2.default.isFn(fns)) fns(data);
-
-	            console.log("emit 绑定事件栈 : ", HANDLERS);
+	            HybridJS.core.invokeNative(api, data);
 	        }
 	    }]);
 
-	    return EventModel;
+	    return Navigation;
 	}();
 
-	exports.default = EventModel;
-
-
-		module.exports = EventModel;
+	var nav = new Navigation();
+	HybridJS.navigation = nav;
+	module.exports = nav;
 
 /***/ }
 /******/ ]);

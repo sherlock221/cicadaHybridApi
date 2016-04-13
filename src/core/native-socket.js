@@ -19,6 +19,7 @@ const CALLBACKS = {};
 
 class NativeSocket {
 
+
     constructor() {
         HybridJS = Util.getRoot();
         let m = UA.match(new RegExp(OS_NAME + '\\/([^\\/]+)\\/(\\d+)'));
@@ -71,7 +72,6 @@ class NativeSocket {
         //回调函数
         if(fn)  params[REQUEST_FUN_BACK] = fn;
 
-
         //参数进行封装
         if(params){
             url += this._encodeParam(params);
@@ -88,7 +88,6 @@ class NativeSocket {
         //如果有回调函数则返回标识
         return fn;
     };
-
 
 
     /**
@@ -145,6 +144,24 @@ class NativeSocket {
             i++;
         }
         return encodeURIComponent(baseUrl);
+    };
+
+
+    /**
+     * 开放注册回调函数
+     * @returns {*}
+     */
+    registerCallBack(api,callBack,params){
+        params = params || {};
+       let fn =  this._callbackSign(
+            api,
+            callBack,
+            params.context || HybridJS,
+            params.nextTick !== undefined ? params.nextTick : true
+        );
+        console.log(CALLBACKS);
+
+        return fn;
     };
 
 
