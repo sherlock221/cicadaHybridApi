@@ -16,14 +16,14 @@ export  default class Toast {
     static show(message, duration) {
 
         duration = duration || 2000;
-        HybridJS.core.invokeNative("ui.toast", {message: message, show: true, duration: duration});
+        HybridJS.core.invokeNative("ui.toast.toggle", {message: message, show: true, duration: duration});
     };
 
     /**
      * 隐藏toast
      */
     static hide() {
-        HybridJS.core.invokeNative("ui.toast", {show: false});
+        HybridJS.core.invokeNative("ui.toast.toggle", {show: false});
     };
 
 

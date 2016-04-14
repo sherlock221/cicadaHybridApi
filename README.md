@@ -61,7 +61,6 @@ Hybrid中Native与前端各自的工作是什么
 
 ④ Hybrid的如何设计目录结构以及增量机制如何实现
 
-⑤ 资源缓存策略，白屏问题......
 
 
 
@@ -75,12 +74,13 @@ Hybrid中Native与前端各自的工作是什么
 
 {   
     left : [
-        tagname : 'back',
-        value   : '回退',
-        //提供一种映射
-        lefticon : "back",
-        callback : function(){}
-             
+        {
+            tagname : 'back',
+            value   : '回退',
+            //提供一种映射
+            lefticon : "back",
+            callback : function(){}
+        }
     ],
     right : [
         {
