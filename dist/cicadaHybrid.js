@@ -54,7 +54,7 @@
 
 	var _ui2 = _interopRequireDefault(_ui);
 
-	var _navigation = __webpack_require__(8);
+	var _navigation = __webpack_require__(9);
 
 	var _navigation2 = _interopRequireDefault(_navigation);
 
@@ -515,9 +515,12 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	//import Header from "./header";
+
 	_util2.default.getRoot().ui = {
-	  toast: _toast2.default,
-	  dialog: _dialog2.default
+	    toast: _toast2.default,
+	    dialog: _dialog2.default
+	    //header : Header
 	}; /**
 	    * Created by jiaaobo on 16/4/10.
 	    */
@@ -563,7 +566,7 @@
 	    value: function show(message, duration) {
 
 	      duration = duration || 2000;
-	      HybridJS.core.invokeNative("ui.toast", { message: message, show: true, duration: duration });
+	      HybridJS.core.invokeNative("ui.toast.toggle", { message: message, show: true, duration: duration });
 	    }
 	  }, {
 	    key: "hide",
@@ -573,7 +576,7 @@
 	     * 隐藏toast
 	     */
 	    value: function hide() {
-	      HybridJS.core.invokeNative("ui.toast", { show: false });
+	      HybridJS.core.invokeNative("ui.toast.toggle", { show: false });
 	    }
 	  }]);
 
@@ -691,7 +694,8 @@
 	exports.default = Dialog;
 
 /***/ },
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
