@@ -165,21 +165,10 @@
 
     //js调用原生
     window.invokeNative = function (type) {
-        var id = HybridJS.core.invokeNative("module.getUser", {userId: 10}, function (res) {
+        HybridJS.core.invokeNative("module.getUser", {userId: 10}, function (res) {
             console.log(res);
+            alert(JSON.stringify(res));
         });
-        //模拟原生调用
-        setTimeout(function () {
-
-            var res = {
-                //回调函数标识
-                res_fun: id,
-                //返回的参数
-                data: {userName: "haha", userId: 10}
-            }
-
-            HybridJS.core.invokeWeb("module.getUser", JSON.stringify(res));
-        }, 1000);
     }
 
 
