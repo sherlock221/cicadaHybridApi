@@ -15,26 +15,81 @@ export  default class Header {
 
     /**
      * 更新整个header
+     *
+     * iconType : 1 | 2  1:为图标  2:文字
      */
-    update(opts){
+    static update(opts){
+
+        //容错处理
         if (!opts) return;
+        if(!opts.left) opts.left = [];
+        if(!opts.right) opts.right = [];
+        if(!opts.title) opts.title = "";
 
-        //参考继续设计 http://www.cnblogs.com/yexiaochai/p/4921635.html
-        let left = [];
-        let right = [];
-        let title = {};
+        //api名称
+        let api = "ui.header.update";
 
+        //返回按钮
+        let backBtn = {
+            tagName: 'back',
+            value : "icon-back",
+            iconType : 1
+        };
 
-        HybridJS.core.invokeNative("ui.header.update",{
+        let settings = {
+            left :[],
+            right : [],
+            title : ""
+        };
 
-        });
+        let _billBack = function(btn){
+            if(btn.callBack && Util.isFn(btn.callBack)){
+                let seed = HybridJS.core.registerCallBack(
+                    api,
+                    btn.callBack,
+                    btn.tagName
+                );
+                btn.req_fun = seed;
+                delete btn.callBack;
+            }
+        };
+
+        settings.left = settings.left.concat([backBtn],opts.left);
+        settings.right = opts.right;
+        settings.title = opts.title;
+
+        //生成回调函数种子
+        settings.right.forEach(_billBack);
+        settings.right.forEach(_billBack);
+
+        console.log(settings);
+        //let seedFun  = settings.right[0].req_fun;
+        //let seedFun2  = settings.right[1].req_fun;
+        
+        HybridJS.core.invokeNative(api,{config : JSON.stringify(settings)});
+
+        //测试模拟
+        //setTimeout(function(){
+        //    console.log(HybridJS.core.getCallBacks());
+        //    HybridJS.core.invokeWeb(api,JSON.stringify({
+        //        rtnCode : "200",
+        //        msg : "成功",
+        //        res_fun : seedFun,
+        //        result  : {
+        //            data  : {userId : 10}
+        //        }
+        //    }));
+        //
+        //
+        //},2000);
     };
+
 
     /**
      * 设置标题
      * @param title
      */
-    setTitle(title){
+    static setTitle(title){
         HybridJS.core.invokeNative("ui.header.setTitle",{
             title : title
         });
@@ -43,7 +98,7 @@ export  default class Header {
     /**
      * 显示header
      */
-    show(){
+    static show(){
         HybridJS.core.invokeNative("ui.header.toggle",{
             show : true
         });
@@ -52,7 +107,7 @@ export  default class Header {
     /**
      * 隐藏header
      */
-    hide(){
+    static hide(){
         HybridJS.core.invokeNative("ui.header.toggle",{
             show : false
         });
@@ -62,7 +117,5 @@ export  default class Header {
 
 }
 
-let  header = new Header();
-HybridJS.ui.header  = header ;
-module.exports = header;
+module.exports = Header;
 

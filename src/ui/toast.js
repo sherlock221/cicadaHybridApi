@@ -11,11 +11,11 @@ export  default class Toast {
     /**
      * 显示toast
      * @param message
-     * @param duration 毫秒 如果duration = 0; 则一直显示
+     * @param duration 毫秒 duration 为空 默认客户端设置
+     * @param duration 毫秒 duration 为-1 则需要点击才能消失(未实现)
      */
     static show(message, duration) {
-
-        duration = duration || 2000;
+        duration = duration || "";
         HybridJS.core.invokeNative("ui.toast.toggle", {message: message, show: true, duration: duration});
     };
 
@@ -25,6 +25,7 @@ export  default class Toast {
     static hide() {
         HybridJS.core.invokeNative("ui.toast.toggle", {show: false});
     };
+
 
 
 }

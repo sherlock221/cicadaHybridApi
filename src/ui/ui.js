@@ -7,10 +7,14 @@
 import Util  from  "../util/util";
 import Toast from "./toast";
 import Dialog from "./dialog";
-//import Header from "./header";
+import Loading from "./loading";
+import WebView from "./webview";
+import Header from "./header";
 
 Util.getRoot().ui = {
     toast : Toast,
-    dialog : Dialog
-    //header : Header
+    dialog : Dialog,
+    loading : Loading,
+    webview : WebView,
+    header : Header
 };

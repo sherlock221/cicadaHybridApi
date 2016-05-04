@@ -28,8 +28,13 @@ module.exports = {
     },
 
     //开发模式
-    devtool: 'cheap-module-source-map',
+    //devtool: '#cheap-source-map',
+    //devtool: '#eval-source-map',
+    devtool: '#cheap-module-source-map',
+    //devtool: '#hidden-source-map',
+    //devtool: '#cheap-module-eval-source-map',
     debug : true,
+
 
     //插件项
     plugins: [
@@ -51,16 +56,17 @@ module.exports = {
 
         //加载器配置
         loaders: [
-            //.js 文件使用 es6处理
-            { test: /\.js$/, loader: 'babel-loader',exclude: /(node_modules|bower_components)/,query: {
-                presets: ['es2015','react']
-            }},
-
             //.css 文件使用 style-loader 和 css-loader 来处理
             {test: /\.css$/, loader: 'style-loader!css-loader'},
 
             //图片文件使用 url-loader 来处理，小于8kb的直接转为base64
-            {test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192'}
+            {test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192'},
+
+            //.js 文件使用 es6处理
+            { test: /\.js$/, loader: 'babel-loader',exclude: /(node_modules|bower_components)/,query: {
+                presets: ['es2015']
+            }}
+
         ]
     },
     resolve: {

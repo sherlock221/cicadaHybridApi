@@ -54,7 +54,7 @@
 
 	var _ui2 = _interopRequireDefault(_ui);
 
-	var _navigation = __webpack_require__(9);
+	var _navigation = __webpack_require__(11);
 
 	var _navigation2 = _interopRequireDefault(_navigation);
 
@@ -68,10 +68,11 @@
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * js与原生通讯方案
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * sherlock221b
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * 核心部分参考 https://github.com/chemdemo/hybrid-js/blob/master/lib/core.js
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 
 	var _config = __webpack_require__(2);
@@ -96,6 +97,12 @@
 
 	var CALLBACKS = {};
 
+	/**
+	 * js与原生核心通信
+	 * 1.js调用原生 url拦截
+	 * 2.原生调用js 通过JS注入
+	 */
+
 	var NativeSocket = function () {
 	    function NativeSocket() {
 	        _classCallCheck(this, NativeSocket);
@@ -119,42 +126,92 @@
 
 	    _createClass(NativeSocket, [{
 	        key: "invokeNative",
-	        value: function invokeNative(api, params, callBack) {
+	        value: function invokeNative(api, params, callBack, callBackType) {
 	            if (!api) throw Error("api 未填写...");
 
 	            //api名称
 	            var names = api.split(/\.|\//);
 	            var method = names.pop();
-	            var ns = undefined;
-	            var fn = undefined;
+	            var ns = void 0;
+	            var fns = new Map();
 
 	            if (!names.length || !method) throw Error('api ' + api + ' has not assigned');
 	            ns = names.join('/');
 
 	            //检测回调函数
-	            if (callBack && _util2.default.isFn(callBack)) {
-	                //注册一个回调函数
-	                fn = this._callbackSign(api, callBack, params.context || HybridJS, params.nextTick !== undefined ? params.nextTick : true);
+	            if (callBack) {
+	                //单个回调函数
+	                if (_util2.default.isFn(callBack)) {
+	                    var fn = this._callbackSign(api, callBack, callBackType, params.context || HybridJS, params.nextTick !== undefined ? params.nextTick : true);
+	                    fns.set(REQUEST_FUN_BACK, fn);
+	                }
+	                //多个回调函数
+	                else {
+
+	                        for (var cb in callBack) {
+	                            var empCallBack = callBack[cb];
+	                            if (_util2.default.isFn(empCallBack)) {
+	                                var _fn = this._callbackSign(api, empCallBack, callBackType, params.context || HybridJS, params.nextTick !== undefined ? params.nextTick : true);
+	                                fns.set(cb, _fn);
+	                            }
+	                        }
+	                    }
 
 	                delete params.callback;
 	                delete params.context;
 	                delete params.nextTick;
 	            }
 
-	            _util2.default.log("当前回调函数栈: ", CALLBACKS);
-
 	            //组装url
 	            var url = _config.SCHEMA + "://" + _config.SOURCE + "/" + ns + "/" + method;
 
 	            //回调函数
-	            if (fn) params[REQUEST_FUN_BACK] = fn;
+	            var keyTemp = [];
+	            if (fns.size > 0) {
+	                var _iteratorNormalCompletion = true;
+	                var _didIteratorError = false;
+	                var _iteratorError = undefined;
+
+	                try {
+	                    for (var _iterator = fns.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                        var _step$value = _slicedToArray(_step.value, 2);
+
+	                        var key = _step$value[0];
+	                        var value = _step$value[1];
+
+	                        params[key] = value;
+	                        keyTemp.push(key);
+	                    }
+	                } catch (err) {
+	                    _didIteratorError = true;
+	                    _iteratorError = err;
+	                } finally {
+	                    try {
+	                        if (!_iteratorNormalCompletion && _iterator.return) {
+	                            _iterator.return();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError) {
+	                            throw _iteratorError;
+	                        }
+	                    }
+	                }
+	            };
 
 	            //参数进行封装
 	            if (params) {
 	                url += this._encodeParam(params);
 	            }
 
-	            if (fn) delete params[REQUEST_FUN_BACK];
+	            //删除
+	            if (keyTemp.length > 0) {
+	                keyTemp.forEach(function (key) {
+	                    delete params[key];
+	                });
+	            }
+
+	            console.log(CALLBACKS);
+	            _util2.default.log("当前回调函数栈: ", fns);
 
 	            _util2.default.log("编译前的: ", decodeURIComponent(url));
 	            _util2.default.log("编译后的: ", url);
@@ -163,7 +220,7 @@
 	            this._invokeByUrlSchema(url);
 
 	            //如果有回调函数则返回标识
-	            return fn;
+	            return fns;
 	        }
 	    }, {
 	        key: "invokeWeb",
@@ -178,7 +235,7 @@
 	        value: function invokeWeb(api, str) {
 	            if (typeof api !== 'string' || str && typeof str !== 'string') throw Error('参数不合法，必须是字符串');
 
-	            var params = undefined;
+	            var params = void 0;
 
 	            //解码
 	            str = decodeURIComponent(str);
@@ -198,9 +255,8 @@
 	            if (responseFun) {
 	                var callback = this._findCallback(api, responseFun);
 	                delete params[RESPONSE_FUN_BACK];
-
 	                if (_util2.default.isFn(callback)) {
-	                    callback(params.data);
+	                    callback(params.result.data);
 	                }
 	                return;
 	            }
@@ -208,8 +264,8 @@
 	            else {
 	                    _util2.default.log("发送事件");
 	                    if (/^sdk(?:\.|\/)notify/.test(api) && params) {
-	                        var data = params.data || {};
-	                        _eventModel2.default.emit(params.event, data);
+	                        var data = params.result.data || {};
+	                        _eventModel2.default.emit(params.result.event, data);
 	                        return;
 	                    }
 	                }
@@ -233,24 +289,55 @@
 	         * 开放注册回调函数
 	         * @returns {*}
 	         */
-	        value: function registerCallBack(api, callBack, params) {
+	        value: function registerCallBack(api, callBack, callBackType, params) {
 	            params = params || {};
-	            var fn = this._callbackSign(api, callBack, params.context || HybridJS, params.nextTick !== undefined ? params.nextTick : true);
+	            var fn = this._callbackSign(api, callBack, callBackType, params.context || HybridJS, params.nextTick !== undefined ? params.nextTick : true);
 	            console.log(CALLBACKS);
 
 	            return fn;
+	        }
+	    }, {
+	        key: "cancelCallBack",
+
+
+	        /**
+	         * 注销回调函数
+	         * @param api
+	         * @param sn
+	         */
+	        value: function cancelCallBack(api, sn) {
+	            var map = CALLBACKS[api] || (CALLBACKS[api] = {});
+	            delete map[sn];
+	        }
+	    }, {
+	        key: "getCallBacks",
+
+
+	        /**
+	         * 获得所有回调函数
+	         */
+	        value: function getCallBacks() {
+	            return CALLBACKS;
 	        }
 	    }, {
 	        key: "_callbackSign",
 
 
 	        //注册一个回调函数
-	        value: function _callbackSign(api, callback, context, nextTick) {
+	        value: function _callbackSign(api, callback, callbackType, context, nextTick) {
 	            if (_util2.default.isFn(callback)) {
 	                var _ret = function () {
 	                    api = api.replace(/\./g, '/');
 
-	                    var sn = WEB_CB_SN_PREFIX + Date.now();
+	                    var sn = WEB_CB_SN_PREFIX;
+
+	                    //事件绑定
+	                    if (callbackType) {
+	                        sn += "$event$" + callbackType;
+	                    } else {
+	                        sn += Date.now();
+	                    }
+
 	                    var map = CALLBACKS[api] || (CALLBACKS[api] = {});
 	                    // let map = createNamespace(CALLBACKS, api.split(/\./));
 	                    // 注意，箭头函数没有arguments！！
@@ -264,7 +351,9 @@
 	                                callback.apply(context, args);
 	                            }, 0);
 	                        }
-	                        delete map[sn];
+
+	                        //一次性函数
+	                        if (!callbackType) delete map[sn];
 	                    };
 
 	                    return {
@@ -383,7 +472,7 @@
 	    return Util;
 	}();
 
-	exports.default = Util;
+		exports.default = Util;
 
 /***/ },
 /* 4 */
@@ -513,17 +602,31 @@
 
 	var _dialog2 = _interopRequireDefault(_dialog);
 
+	var _loading = __webpack_require__(8);
+
+	var _loading2 = _interopRequireDefault(_loading);
+
+	var _webview = __webpack_require__(9);
+
+	var _webview2 = _interopRequireDefault(_webview);
+
+	var _header = __webpack_require__(10);
+
+	var _header2 = _interopRequireDefault(_header);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	//import Header from "./header";
+	/**
+	 * Created by jiaaobo on 16/4/10.
+	 */
 
 	_util2.default.getRoot().ui = {
 	    toast: _toast2.default,
-	    dialog: _dialog2.default
-	    //header : Header
-	}; /**
-	    * Created by jiaaobo on 16/4/10.
-	    */
+	    dialog: _dialog2.default,
+	    loading: _loading2.default,
+	    webview: _webview2.default,
+	    header: _header2.default
+		};
 
 /***/ },
 /* 6 */
@@ -561,11 +664,11 @@
 	    /**
 	     * 显示toast
 	     * @param message
-	     * @param duration 毫秒 如果duration = 0; 则一直显示
+	     * @param duration 毫秒 duration 为空 默认客户端设置
+	     * @param duration 毫秒 duration 为-1 则需要点击才能消失(未实现)
 	     */
 	    value: function show(message, duration) {
-
-	      duration = duration || 2000;
+	      duration = duration || "";
 	      HybridJS.core.invokeNative("ui.toast.toggle", { message: message, show: true, duration: duration });
 	    }
 	  }, {
@@ -583,7 +686,7 @@
 	  return Toast;
 	}();
 
-	exports.default = Toast;
+		exports.default = Toast;
 
 /***/ },
 /* 7 */
@@ -691,11 +794,261 @@
 	    return Dialog;
 	}();
 
-	exports.default = Dialog;
+		exports.default = Dialog;
 
 /***/ },
-/* 8 */,
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	var Loading = function () {
+	  function Loading() {
+	    _classCallCheck(this, Loading);
+	  }
+
+	  _createClass(Loading, null, [{
+	    key: "show",
+
+
+	    /**
+	     * 显示Loading
+	     * @param duration
+	     */
+	    value: function show() {
+	      HybridJS.core.invokeNative("ui.loading.toggle", { show: true });
+	    }
+	  }, {
+	    key: "hide",
+
+
+	    /**
+	     * 隐藏loading
+	     */
+	    value: function hide() {
+	      HybridJS.core.invokeNative("ui.loading.toggle", { show: false });
+	    }
+	  }]);
+
+	  return Loading;
+	}();
+
+		exports.default = Loading;
+
+/***/ },
 /* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	var WebView = function () {
+	  function WebView() {
+	    _classCallCheck(this, WebView);
+	  }
+
+	  _createClass(WebView, null, [{
+	    key: "exit",
+
+
+	    /**
+	     * 退出关闭webview
+	     * @param
+	     */
+	    value: function exit() {
+	      HybridJS.core.invokeNative("ui.webview.exit", {});
+	    }
+	  }]);
+
+	  return WebView;
+	}();
+
+		exports.default = WebView;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * header组件 自定义
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	var Header = function () {
+	    function Header() {
+	        _classCallCheck(this, Header);
+	    }
+
+	    _createClass(Header, null, [{
+	        key: "update",
+
+
+	        /**
+	         * 更新整个header
+	         *
+	         * iconType : 1 | 2  1:为图标  2:文字
+	         */
+	        value: function update(opts) {
+
+	            //容错处理
+	            if (!opts) return;
+	            if (!opts.left) opts.left = [];
+	            if (!opts.right) opts.right = [];
+	            if (!opts.title) opts.title = "";
+
+	            //api名称
+	            var api = "ui.header.update";
+
+	            //返回按钮
+	            var backBtn = {
+	                tagName: 'back',
+	                value: "icon-back",
+	                iconType: 1
+	            };
+
+	            var settings = {
+	                left: [],
+	                right: [],
+	                title: ""
+	            };
+
+	            var _billBack = function _billBack(btn) {
+	                if (btn.callBack && _util2.default.isFn(btn.callBack)) {
+	                    var seed = HybridJS.core.registerCallBack(api, btn.callBack, btn.tagName);
+	                    btn.req_fun = seed;
+	                    delete btn.callBack;
+	                }
+	            };
+
+	            settings.left = settings.left.concat([backBtn], opts.left);
+	            settings.right = opts.right;
+	            settings.title = opts.title;
+
+	            //生成回调函数种子
+	            settings.right.forEach(_billBack);
+	            settings.right.forEach(_billBack);
+
+	            console.log(settings);
+	            //let seedFun  = settings.right[0].req_fun;
+	            //let seedFun2  = settings.right[1].req_fun;
+
+	            HybridJS.core.invokeNative(api, { config: JSON.stringify(settings) });
+
+	            //测试模拟
+	            //setTimeout(function(){
+	            //    console.log(HybridJS.core.getCallBacks());
+	            //    HybridJS.core.invokeWeb(api,JSON.stringify({
+	            //        rtnCode : "200",
+	            //        msg : "成功",
+	            //        res_fun : seedFun,
+	            //        result  : {
+	            //            data  : {userId : 10}
+	            //        }
+	            //    }));
+	            //
+	            //
+	            //},2000);
+	        }
+	    }, {
+	        key: "setTitle",
+
+
+	        /**
+	         * 设置标题
+	         * @param title
+	         */
+	        value: function setTitle(title) {
+	            HybridJS.core.invokeNative("ui.header.setTitle", {
+	                title: title
+	            });
+	        }
+	    }, {
+	        key: "show",
+
+
+	        /**
+	         * 显示header
+	         */
+	        value: function show() {
+	            HybridJS.core.invokeNative("ui.header.toggle", {
+	                show: true
+	            });
+	        }
+	    }, {
+	        key: "hide",
+
+
+	        /**
+	         * 隐藏header
+	         */
+	        value: function hide() {
+	            HybridJS.core.invokeNative("ui.header.toggle", {
+	                show: false
+	            });
+	        }
+	    }]);
+
+	    return Header;
+	}();
+
+	exports.default = Header;
+
+
+		module.exports = Header;
+
+/***/ },
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";

@@ -1,7 +1,6 @@
 /**
  * js与原生通讯方案
  * sherlock221b
- * 核心部分参考 https://github.com/chemdemo/hybrid-js/blob/master/lib/core.js
  */
 
 
@@ -15,8 +14,14 @@ const RESPONSE_FUN_BACK = 'res_fun';
 const WEB_CB_SN_PREFIX = '__ca_';
 const SLICE = Array.prototype.slice;
 
-const CALLBACKS = {};
+let CALLBACKS = {};
 
+
+/**
+ * js与原生核心通信
+ * 1.js调用原生 url拦截
+ * 2.原生调用js 通过JS注入
+ */
 class NativeSocket {
 
 
@@ -37,47 +42,87 @@ class NativeSocket {
      * @param callBack
      * @returns {boolean}
      */
-    invokeNative(api, params, callBack) {
+    invokeNative(api, params, callBack,callBackType) {
         if (!api) throw Error("api 未填写...");
 
         //api名称
         let names = api.split(/\.|\//);
         let method = names.pop();
         let ns;
-        let fn;
+        let fns = new Map();
 
         if (!names.length || !method) throw Error('api ' + api + ' has not assigned');
         ns = names.join('/');
 
         //检测回调函数
-        if(callBack && Util.isFn(callBack)){
-            //注册一个回调函数
-            fn = this._callbackSign(
-                api,
-                callBack,
-                params.context || HybridJS,
-                params.nextTick !== undefined ? params.nextTick : true
-            );
+        if(callBack){
+            //单个回调函数
+            if(Util.isFn(callBack)){
+                let fn = this._callbackSign(
+                    api,
+                    callBack,
+                    callBackType,
+                    params.context || HybridJS,
+                    params.nextTick !== undefined ? params.nextTick : true
+                );
+                fns.set(REQUEST_FUN_BACK,fn);
+
+            }
+            //多个回调函数
+            else{
+
+                for (var cb in callBack){
+                    var empCallBack = callBack[cb];
+                    if(Util.isFn(empCallBack)){
+                        let fn = this._callbackSign(
+                            api,
+                            empCallBack,
+                            callBackType,
+                            params.context || HybridJS,
+                            params.nextTick !== undefined ? params.nextTick : true
+                        );
+                        fns.set(cb,fn);
+                    }
+                }
+
+            }
 
             delete params.callback;
             delete params.context;
             delete params.nextTick;
         }
 
-        Util.log("当前回调函数栈: ",CALLBACKS);
-
         //组装url
         let url = `${SCHEMA}://${SOURCE}/${ns}/${method}`;
 
         //回调函数
-        if(fn)  params[REQUEST_FUN_BACK] = fn;
+        let keyTemp = [];
+        if(fns.size > 0){
+            for(var [key, value] of fns.entries()){
+                params[key] = value;
+                keyTemp.push(key);
+            }
+        };
+
+
+
 
         //参数进行封装
         if(params){
             url += this._encodeParam(params);
         }
 
-        if(fn) delete params[REQUEST_FUN_BACK];
+        //删除
+        if(keyTemp.length > 0){
+            keyTemp.forEach((key)=>{
+                delete params[key];
+            });
+        }
+
+        console.log(CALLBACKS);
+        Util.log("当前回调函数栈: ",fns);
+
+
 
         Util.log("编译前的: ",decodeURIComponent(url));
         Util.log("编译后的: ",url);
@@ -86,7 +131,7 @@ class NativeSocket {
         this._invokeByUrlSchema(url);
 
         //如果有回调函数则返回标识
-        return fn;
+        return fns;
     };
 
 
@@ -119,9 +164,8 @@ class NativeSocket {
         if(responseFun){
             let callback = this._findCallback(api, responseFun);
             delete params[RESPONSE_FUN_BACK];
-
             if(Util.isFn(callback)){
-                callback(params.data);
+                callback(params.result.data);
             }
             return;
         }
@@ -129,12 +173,14 @@ class NativeSocket {
         else{
             Util.log("发送事件");
             if(/^sdk(?:\.|\/)notify/.test(api) && params) {
-                let data = params.data || {}
-                EventModel.emit(params.event, data);
+                let data = params.result.data || {}
+                EventModel.emit(params.result.event, data);
                 return;
             }
         }
     };
+
+
 
     _encodeParam(params) {
         let i = 0;
@@ -151,11 +197,12 @@ class NativeSocket {
      * 开放注册回调函数
      * @returns {*}
      */
-    registerCallBack(api,callBack,params){
+    registerCallBack(api,callBack,callBackType,params){
         params = params || {};
        let fn =  this._callbackSign(
             api,
             callBack,
+            callBackType,
             params.context || HybridJS,
             params.nextTick !== undefined ? params.nextTick : true
         );
@@ -164,13 +211,38 @@ class NativeSocket {
         return fn;
     };
 
+    /**
+     * 注销回调函数
+     * @param api
+     * @param sn
+     */
+    cancelCallBack(api,sn){
+        let map = CALLBACKS[api] || (CALLBACKS[api] = {});
+        delete map[sn];
+    };
+
+    /**
+     * 获得所有回调函数
+     */
+    getCallBacks(){
+        return CALLBACKS;
+    };
 
     //注册一个回调函数
-    _callbackSign(api, callback, context, nextTick){
+    _callbackSign(api, callback,callbackType,context, nextTick){
         if(Util.isFn(callback)) {
             api = api.replace(/\./g, '/');
 
-            let sn = WEB_CB_SN_PREFIX + Date.now();
+            let sn = WEB_CB_SN_PREFIX
+
+            //事件绑定
+            if(callbackType){
+                sn += "$event$"+callbackType;
+            }
+            else{
+                sn += Date.now();
+            }
+
             let map = CALLBACKS[api] || (CALLBACKS[api] = {});
             // let map = createNamespace(CALLBACKS, api.split(/\./));
             // 注意，箭头函数没有arguments！！
@@ -184,7 +256,10 @@ class NativeSocket {
                         callback.apply(context, args);
                     }, 0);
                 }
-                delete map[sn];
+
+                //一次性函数
+                if(!callbackType)
+                    delete map[sn];
             };
 
             return sn;

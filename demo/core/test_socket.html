@@ -165,11 +165,16 @@
 
     //js调用原生
     window.invokeNative = function (type) {
-        HybridJS.core.invokeNative("module.getUser", {userId: 10}, function (res) {
-            console.log(res);
-            alert(JSON.stringify(res));
+        HybridJS.core.invokeNative("api.pay.payment", {itemId: 10},{
+            success : function (res) {
+                console.log(res);
+                alert(JSON.stringify(res));
+            },
+            error : function(){
+
+            }
         });
-    }
+    };
 
 
     //原生主动通信js
