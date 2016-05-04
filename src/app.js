@@ -6,5 +6,6 @@
 
 import NS from "./core/native-socket";
 import UI from "./ui/ui";
+import API from "./api/api";
 import Navigation from "./navigation/navigation";
 

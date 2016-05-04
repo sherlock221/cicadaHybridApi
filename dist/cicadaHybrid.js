@@ -54,7 +54,11 @@
 
 	var _ui2 = _interopRequireDefault(_ui);
 
-	var _navigation = __webpack_require__(11);
+	var _api = __webpack_require__(11);
+
+	var _api2 = _interopRequireDefault(_api);
+
+	var _navigation = __webpack_require__(15);
 
 	var _navigation2 = _interopRequireDefault(_navigation);
 
@@ -1053,6 +1057,212 @@
 
 	"use strict";
 
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _pay = __webpack_require__(16);
+
+	var _pay2 = _interopRequireDefault(_pay);
+
+	var _sharePlatform = __webpack_require__(12);
+
+	var _sharePlatform2 = _interopRequireDefault(_sharePlatform);
+
+	var _media = __webpack_require__(13);
+
+	var _media2 = _interopRequireDefault(_media);
+
+	var _network = __webpack_require__(14);
+
+	var _network2 = _interopRequireDefault(_network);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	_util2.default.getRoot().api = {
+	    pay: _pay2.default,
+	    sharePlatform: _sharePlatform2.default,
+	    media: _media2.default,
+	    network: _network2.default
+	}; /**
+	    * 服务相关api
+	    * Created by jiaaobo on 16/4/10.
+	    */
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	/**
+	 * 第三方分享模块
+	 */
+
+	var SharePlatform = function () {
+	  function SharePlatform() {
+	    _classCallCheck(this, SharePlatform);
+	  }
+
+	  _createClass(SharePlatform, null, [{
+	    key: "sharePage",
+
+
+	    /**
+	     * 分享页面
+	     * @param itemId
+	     */
+	    value: function sharePage() {}
+	  }]);
+
+	  return SharePlatform;
+	}();
+
+		exports.default = SharePlatform;
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	/**
+	 * 支付模块
+	 */
+
+	var Media = function () {
+	  function Media() {
+	    _classCallCheck(this, Media);
+	  }
+
+	  _createClass(Media, null, [{
+	    key: "playVideoByRemoteUrl",
+
+
+	    /**
+	     * 播放远程视频文件
+	     * @param url
+	     */
+	    value: function playVideoByRemoteUrl(url, setting) {
+	      if (!url) throw new Error("url为空!");
+	      HybridJS.core.invokeNative("ui.media.playVideoByRemoteUrl", setting);
+	    }
+	  }, {
+	    key: "playAudioByRemoteUrl",
+
+
+	    /**
+	     * 播放远程音频文件
+	     * @param url
+	     */
+	    value: function playAudioByRemoteUrl(url, setting) {
+	      if (!url) throw new Error("url为空!");
+	      HybridJS.core.invokeNative("ui.media.playAudioByRemoteUrl", setting);
+	    }
+	  }]);
+
+	  return Media;
+	}();
+
+		exports.default = Media;
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	/**
+	 * 网络模块
+	 */
+
+	var Network = function () {
+	    function Network() {
+	        _classCallCheck(this, Network);
+	    }
+
+	    _createClass(Network, null, [{
+	        key: "getConnectionType",
+
+
+	        /**
+	         * 获取当前网络类型
+	         * @param itemId
+	         */
+	        value: function getConnectionType() {
+	            return new Promise(function (resolve, reject) {
+	                HybridJS.core.invokeNative('api.network.getConnectionType', {}, function (res) {
+	                    resolve(res);
+	                });
+	            });
+	        }
+	    }]);
+
+	    return Network;
+	}();
+
+		exports.default = Network;
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
@@ -1140,6 +1350,63 @@
 	var nav = new Navigation();
 	HybridJS.navigation = nav;
 	module.exports = nav;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	/**
+	 * 支付模块
+	 */
+
+	var Pay = function () {
+	    function Pay() {
+	        _classCallCheck(this, Pay);
+	    }
+
+	    _createClass(Pay, null, [{
+	        key: "payment",
+
+
+	        /**
+	         * 付款支付
+	         * @param message
+	         * @param itemId
+	         */
+	        value: function payment(itemId) {
+	            if (!itemId) throw new Error("ItemId为空!");
+	            return new Promise(function (resolve, reject) {
+	                HybridJS.core.invokeNative("ui.pay.payment", { itemId: itemId }, function (res) {
+	                    resolve(res);
+	                });
+	            });
+	        }
+	    }]);
+
+	    return Pay;
+	}();
+
+		exports.default = Pay;
 
 /***/ }
 /******/ ]);
