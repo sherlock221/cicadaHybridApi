@@ -16,8 +16,12 @@ export  default class WebView {
         HybridJS.core.invokeNative("ui.webview.exit", {});
     };
 
-
-
+    /**
+     * 打开一个webview
+     */
+    static open(url) {
+        HybridJS.core.invokeNative("ui.webview.open", {url : url, targetType : "single"});
+    };
 
 
 }

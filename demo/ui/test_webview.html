@@ -32,6 +32,7 @@
     <h2 class="">webview</h2>
     <p>
         <button type="button"  class="btn btn-primary" onclick="exitWebview();">webview退出关闭</button>
+        <button type="button"  class="btn btn-primary" onclick="openWebview();">webview打开一个url</button>
     </p>
 </section>
 
@@ -42,6 +43,11 @@
     //退出webview
     window.exitWebview = function () {
         HybridJS.ui.webview.exit();
+    }
+
+    //打开一个webview
+    window.openWebview = function () {
+        HybridJS.ui.webview.open("https://www.baidu.com");
     }
 
 </script>

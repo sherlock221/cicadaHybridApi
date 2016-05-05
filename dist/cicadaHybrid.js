@@ -901,6 +901,16 @@
 	    value: function exit() {
 	      HybridJS.core.invokeNative("ui.webview.exit", {});
 	    }
+	  }, {
+	    key: "open",
+
+
+	    /**
+	     * 打开一个webview
+	     */
+	    value: function open(url) {
+	      HybridJS.core.invokeNative("ui.webview.open", { url: url, targetType: "single" });
+	    }
 	  }]);
 
 	  return WebView;
