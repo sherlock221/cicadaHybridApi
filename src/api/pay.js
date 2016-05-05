@@ -22,7 +22,6 @@ export  default class Pay {
                 resolve(res);
             });
         });
-
     };
 
 }

@@ -58,8 +58,8 @@ export  default class Header {
         settings.right = opts.right;
         settings.title = opts.title;
 
-        //生成回调函数种子
-        settings.right.forEach(_billBack);
+        //生成事件回调函
+        settings.left.forEach(_billBack);
         settings.right.forEach(_billBack);
 
         console.log(settings);

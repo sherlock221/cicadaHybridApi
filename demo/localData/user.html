@@ -1,13 +1,8 @@
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>测试头部</title>
+    <title>获得用户信息</title>
     <meta name="description"
           content="app, web app, responsive, responsive layout, admin, admin panel, admin dashboard, flat, flat ui, ui kit, AngularJS, ui route, charts, widgets, components"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
@@ -16,12 +11,10 @@
     <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
     <style type="text/css">
-        body {
+        body{
             padding: 20px;
         }
-        a{
-            display: block;
-        }
+
     </style>
 </head>
 <body>
@@ -32,16 +25,27 @@
 <script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
 
+
+<!-- toast -->
 <section>
-    <a href="api/test_api.html">API模块</a>
-    <a href="ui/test_header.html">UI模块-头部</a>
-    <a href="ui/test_toast.html">UI模块-Toast</a>
-    <a href="ui/test_loading.html">UI模块-loading</a>
-    <a href="ui/test_webview.html">UI模块-webview</a>
-    <a href="localData/user.html">本地数据模块</a>
+    <h2 class="">获得用户信息</h2>
+    <p>
+        <button type="button"  class="btn btn-primary" onclick="testGetUserInfo();">获得用户基本信息</button>
+    </p>
+
 </section>
 
 
+<script type="text/javascript" src="../../dist/cicadaHybrid.js"></script>
+<script type="text/javascript">
 
+    window.testGetUserInfo = function () {
+        HybridJS.localData.user.getUserInfo()
+                .then(function(res){
+                    alert(JSON.stringify(res));
+                });
+    }
+
+</script>
 </body>
 </html>

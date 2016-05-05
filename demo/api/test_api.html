@@ -28,12 +28,12 @@
 
 <!-- toast -->
 <section>
-
     <h2 class="">API</h2>
-
     <p>
-        <button type="button"  class="btn btn-primary" onclick="testGetNetworkType();">测试获得网络类型</button>
-        <button type="button"  class="btn btn-primary" onclick="testPay();">测试支付</button>
+        <button type="button"  class="btn btn-primary" style="margin-bottom: 10px" onclick="testGetNetworkType();">测试获得网络类型</button>
+        <button type="button"  class="btn btn-primary" style="margin-bottom: 10px" onclick="testPay();">测试支付</button>
+        <button type="button"  class="btn btn-primary " style="margin-bottom: 10px" onclick="testPlayVideo();">打开一个远程视频地址</button>
+        <button type="button"  class="btn btn-primary" style="margin-bottom: 10px" onclick="testPlayAudio();">打开一个远程音频地址</button>
     </p>
 
 </section>
@@ -56,6 +56,18 @@
                 .then(function(res){
                     alert(JSON.stringify(res));
                 });
+
+    }
+
+    //测试video
+    window.testPlayVideo = function () {
+        HybridJS.api.media.playVideoByRemoteUrl("http://video19.ifeng.com/video06/2012/08/01/04822d91-7751-406e-b338-0f978f74920d.mp4",{auto : 1});
+
+    }
+
+    window.testPlayAudio = function () {
+        HybridJS.api.media.playVideoByRemoteUrl("http://www.wishcalls.com/wishcalls/wishfile/jr/sr/716.mp3",{auto : 1});
+
 
     }
 

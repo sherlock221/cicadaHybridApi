@@ -16,7 +16,9 @@ export  default class Media {
      */
     static playVideoByRemoteUrl(url,setting) {
         if(!url) throw new Error("url为空!");
-        HybridJS.core.invokeNative("ui.media.playVideoByRemoteUrl", setting);
+
+        var obj = Object.assign({url : url},setting);
+        HybridJS.core.invokeNative("ui.media.playVideoByRemoteUrl",obj);
     };
 
     /**
@@ -25,8 +27,10 @@ export  default class Media {
      */
     static playAudioByRemoteUrl(url,setting) {
         if(!url) throw new Error("url为空!");
-        HybridJS.core.invokeNative("ui.media.playAudioByRemoteUrl", setting);
+        var obj = Object.assign({url : url},setting);
+        HybridJS.core.invokeNative("ui.media.playAudioByRemoteUrl",obj)
     };
+
 
 }
 

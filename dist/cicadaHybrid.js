@@ -58,7 +58,11 @@
 
 	var _api2 = _interopRequireDefault(_api);
 
-	var _navigation = __webpack_require__(15);
+	var _local = __webpack_require__(16);
+
+	var _local2 = _interopRequireDefault(_local);
+
+	var _navigation = __webpack_require__(18);
 
 	var _navigation2 = _interopRequireDefault(_navigation);
 
@@ -979,8 +983,8 @@
 	            settings.right = opts.right;
 	            settings.title = opts.title;
 
-	            //生成回调函数种子
-	            settings.right.forEach(_billBack);
+	            //生成事件回调函
+	            settings.left.forEach(_billBack);
 	            settings.right.forEach(_billBack);
 
 	            console.log(settings);
@@ -1061,19 +1065,19 @@
 
 	var _util2 = _interopRequireDefault(_util);
 
-	var _pay = __webpack_require__(16);
+	var _pay = __webpack_require__(12);
 
 	var _pay2 = _interopRequireDefault(_pay);
 
-	var _sharePlatform = __webpack_require__(12);
+	var _sharePlatform = __webpack_require__(13);
 
 	var _sharePlatform2 = _interopRequireDefault(_sharePlatform);
 
-	var _media = __webpack_require__(13);
+	var _media = __webpack_require__(14);
 
 	var _media2 = _interopRequireDefault(_media);
 
-	var _network = __webpack_require__(14);
+	var _network = __webpack_require__(15);
 
 	var _network2 = _interopRequireDefault(_network);
 
@@ -1091,6 +1095,63 @@
 
 /***/ },
 /* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	/**
+	 * 支付模块
+	 */
+
+	var Pay = function () {
+	    function Pay() {
+	        _classCallCheck(this, Pay);
+	    }
+
+	    _createClass(Pay, null, [{
+	        key: "payment",
+
+
+	        /**
+	         * 付款支付
+	         * @param message
+	         * @param itemId
+	         */
+	        value: function payment(itemId) {
+	            if (!itemId) throw new Error("ItemId为空!");
+	            return new Promise(function (resolve, reject) {
+	                HybridJS.core.invokeNative("ui.pay.payment", { itemId: itemId }, function (res) {
+	                    resolve(res);
+	                });
+	            });
+	        }
+	    }]);
+
+	    return Pay;
+	}();
+
+		exports.default = Pay;
+
+/***/ },
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1139,7 +1200,7 @@
 		exports.default = SharePlatform;
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1181,7 +1242,9 @@
 	     */
 	    value: function playVideoByRemoteUrl(url, setting) {
 	      if (!url) throw new Error("url为空!");
-	      HybridJS.core.invokeNative("ui.media.playVideoByRemoteUrl", setting);
+
+	      var obj = Object.assign({ url: url }, setting);
+	      HybridJS.core.invokeNative("ui.media.playVideoByRemoteUrl", obj);
 	    }
 	  }, {
 	    key: "playAudioByRemoteUrl",
@@ -1193,7 +1256,8 @@
 	     */
 	    value: function playAudioByRemoteUrl(url, setting) {
 	      if (!url) throw new Error("url为空!");
-	      HybridJS.core.invokeNative("ui.media.playAudioByRemoteUrl", setting);
+	      var obj = Object.assign({ url: url }, setting);
+	      HybridJS.core.invokeNative("ui.media.playAudioByRemoteUrl", obj);
 	    }
 	  }]);
 
@@ -1203,7 +1267,7 @@
 		exports.default = Media;
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1258,7 +1322,87 @@
 		exports.default = Network;
 
 /***/ },
-/* 15 */
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _user = __webpack_require__(17);
+
+	var _user2 = _interopRequireDefault(_user);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/**
+	 * 本地数据相关
+	 * Created by jiaaobo on 16/4/10.
+	 */
+
+	_util2.default.getRoot().localData = {
+	  user: _user2.default
+		};
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HybridJS = _util2.default.getRoot();
+
+	/**
+	 * 用户模块
+	 */
+
+	var User = function () {
+	    function User() {
+	        _classCallCheck(this, User);
+	    }
+
+	    _createClass(User, null, [{
+	        key: "getUserInfo",
+
+
+	        /**
+	         * 获得用户信息
+	         * @param url
+	         */
+	        value: function getUserInfo() {
+	            return new Promise(function (resolve, reject) {
+	                HybridJS.core.invokeNative("localData.user.getUserInfo", {}, function (res) {
+	                    resolve(res);
+	                });
+	            });
+	        }
+	    }]);
+
+	    return User;
+	}();
+
+		exports.default = User;
+
+/***/ },
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1350,63 +1494,6 @@
 	var nav = new Navigation();
 	HybridJS.navigation = nav;
 	module.exports = nav;
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Created by jiaaobo on 16/4/10.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
-
-	var _util = __webpack_require__(3);
-
-	var _util2 = _interopRequireDefault(_util);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var HybridJS = _util2.default.getRoot();
-
-	/**
-	 * 支付模块
-	 */
-
-	var Pay = function () {
-	    function Pay() {
-	        _classCallCheck(this, Pay);
-	    }
-
-	    _createClass(Pay, null, [{
-	        key: "payment",
-
-
-	        /**
-	         * 付款支付
-	         * @param message
-	         * @param itemId
-	         */
-	        value: function payment(itemId) {
-	            if (!itemId) throw new Error("ItemId为空!");
-	            return new Promise(function (resolve, reject) {
-	                HybridJS.core.invokeNative("ui.pay.payment", { itemId: itemId }, function (res) {
-	                    resolve(res);
-	                });
-	            });
-	        }
-	    }]);
-
-	    return Pay;
-	}();
-
-		exports.default = Pay;
 
 /***/ }
 /******/ ]);
