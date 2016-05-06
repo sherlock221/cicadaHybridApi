@@ -58,11 +58,15 @@
 
 	var _api2 = _interopRequireDefault(_api);
 
-	var _local = __webpack_require__(16);
+	var _storage = __webpack_require__(16);
+
+	var _storage2 = _interopRequireDefault(_storage);
+
+	var _local = __webpack_require__(18);
 
 	var _local2 = _interopRequireDefault(_local);
 
-	var _navigation = __webpack_require__(18);
+	var _navigation = __webpack_require__(20);
 
 	var _navigation2 = _interopRequireDefault(_navigation);
 
@@ -1361,7 +1365,150 @@
 
 	var _util2 = _interopRequireDefault(_util);
 
-	var _user = __webpack_require__(17);
+	var _mapStorage = __webpack_require__(17);
+
+	var _mapStorage2 = _interopRequireDefault(_mapStorage);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/**
+	 * 服务相关api
+	 * Created by jiaaobo on 16/4/10.
+	 */
+
+	_util2.default.getRoot().storage = {
+	  mapStorage: _mapStorage2.default
+		};
+
+/***/ },
+/* 17 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	/**
+	 * 简单格式存储
+	 */
+
+	var MapStorage = function () {
+	    function MapStorage() {
+	        _classCallCheck(this, MapStorage);
+	    }
+
+	    _createClass(MapStorage, null, [{
+	        key: "getItem",
+
+
+	        /**
+	         * 读
+	         * @param title
+	         */
+	        value: function getItem(key) {
+
+	            return new Promise(function (resolve, reject) {
+
+	                if (!key) {
+	                    throw new Error("key 不能为空");
+	                }
+
+	                HybridJS.core.invokeNative("storage.mapStorage.getItem", {
+	                    key: key
+	                }, function (res) {
+	                    resolve(res);
+	                });
+	            });
+	        }
+	    }, {
+	        key: "setItem",
+
+
+	        /**
+	         * 写
+	         * @param key
+	         * @returns {Promise}
+	         */
+	        value: function setItem(key, value) {
+
+	            return new Promise(function (resolve, reject) {
+
+	                if (!key || !value) {
+	                    throw new Error("key,value 不能为空");
+	                }
+
+	                HybridJS.core.invokeNative("storage.mapStorage.setItem", {
+	                    key: key,
+	                    value: JSON.stringify(value)
+	                }, function (res) {
+	                    resolve(res);
+	                });
+	            });
+	        }
+	    }, {
+	        key: "removeItem",
+
+
+	        /**
+	         * 删除
+	         * @param key
+	         * @returns {Promise}
+	         */
+	        value: function removeItem(key) {
+	            return new Promise(function (resolve, reject) {
+	                if (!key) {
+	                    throw new Error("key 不能为空");
+	                }
+
+	                HybridJS.core.invokeNative("storage.mapStorage.removeItem", {
+	                    key: key
+	                }, function (res) {
+	                    resolve(res);
+	                });
+	            });
+	        }
+	    }, {
+	        key: "clear",
+
+
+	        /**
+	         * 清空
+	         * @returns {Promise}
+	         */
+	        value: function clear() {
+	            return new Promise(function (resolve, reject) {
+	                HybridJS.core.invokeNative("storage.mapStorage.clear", {}, function (res) {
+	                    resolve(res);
+	                });
+	            });
+	        }
+	    }]);
+
+	    return MapStorage;
+	}();
+
+	exports.default = MapStorage;
+
+
+		module.exports = MapStorage;
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _util = __webpack_require__(3);
+
+	var _util2 = _interopRequireDefault(_util);
+
+	var _user = __webpack_require__(19);
 
 	var _user2 = _interopRequireDefault(_user);
 
@@ -1377,7 +1524,7 @@
 		};
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1432,7 +1579,7 @@
 		exports.default = User;
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";

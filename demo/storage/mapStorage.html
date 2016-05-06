@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>map存储</title>
+    <meta name="description"
+          content="app, web app, responsive, responsive layout, admin, admin panel, admin dashboard, flat, flat ui, ui kit, AngularJS, ui route, charts, widgets, components"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <style type="text/css">
+        body {
+            padding: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="http://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+
+<!-- toast -->
+<section>
+    <h2 class="">map存储</h2>
+    <p>
+        <button type="button" class="btn btn-primary" onclick="saveItem();">存储信息</button>
+        <button type="button" class="btn btn-primary" onclick="getItem();">获得信息</button>
+        <button type="button" class="btn btn-primary" onclick="removeItem();">删除信息</button>
+        <button type="button" class="btn btn-primary" onclick="clearAll();">清空信息</button>
+    </p>
+</section>
+
+<script type="text/javascript" src="../../dist/cicadaHybrid.js"></script>
+<script type="text/javascript">
+
+    window.saveItem = function () {
+        HybridJS.storage.mapStorage.setItem("user", {userId: 1, age: 20})
+                .then(function () {
+                    alert("存储成功!");
+                });
+    }
+
+
+    window.getItem = function () {
+        HybridJS.storage.mapStorage.getItem("user", {}, function () {
+            alert("存储成功!");
+        });
+    }
+
+    window.getItem = function () {
+        HybridJS.storage.mapStorage.getItem("user")
+                .then(function (res) {
+                    alert(JSON.stringify(res));
+                });
+    };
+
+    window.removeItem = function () {
+        HybridJS.storage.mapStorage.removeItem("user")
+                .then(function () {
+                    alert("删除成功!");
+                });
+    };
+
+    window.clearAll = function () {
+        HybridJS.storage.mapStorage.clear()
+                .then(function () {
+                    alert("删除成功!");
+                });
+    };
+
+
+</script>
+</body>
+</html>
